@@ -7,6 +7,7 @@ import { WebSocketServer } from "ws";
 
 import { JWT_SECRET } from "@repo/common/config";
 import { CustomJwtPayload, CustomWebSocket } from "@repo/common/types";
+import { WSDataSchema } from "@repo/common/schema";
 
 const PORT = 8080;
 
@@ -45,6 +46,13 @@ wss.on("connection", (ws:CustomWebSocket, req) => {
       ws.close();
       return;
     }
+
+    const parsedData = WSDataSchema.safeParse(data);
+    if(!parsedData.success){
+      console.warn("WS: Incoming message format is wrong");
+      ws.close()
+    }
+
     ws.send(JSON.stringify({
       id:ws.user.id
     }));
