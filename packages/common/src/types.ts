@@ -1,15 +1,21 @@
-import {type Request} from "express"
-import {type JwtPayload} from "jsonwebtoken"
-import { type WebSocket } from "ws"
+import { type Request } from "express";
+import { type JwtPayload } from "jsonwebtoken";
+import { type WebSocket } from "ws";
 
-export interface CustomRequest extends Request{
-    user? : {id:string}
+export interface CustomRequest extends Request {
+  user?: { id: string };
 }
 
-export interface CustomJwtPayload extends JwtPayload{
-    id?:string
+export interface CustomJwtPayload extends JwtPayload {
+  id?: string;
 }
 
-export interface CustomWebSocket extends WebSocket{
-    user:{id:string}
+export interface CustomWebSocket extends WebSocket {
+  user: { id: string };
+}
+
+export interface User {
+  id: string;
+  ws: WebSocket;
+  rooms: String[];
 }

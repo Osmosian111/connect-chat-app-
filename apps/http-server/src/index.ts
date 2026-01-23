@@ -20,7 +20,7 @@ app.post("/signup", async (req, res) => {
 
   if (!parsedData.success) {
     return res.json({
-      msg: parsedData.error.message,
+      msg: parsedData.error,
     });
   }
   const data = parsedData.data;
