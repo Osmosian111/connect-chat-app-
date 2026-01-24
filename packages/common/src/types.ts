@@ -17,5 +17,6 @@ export interface CustomWebSocket extends WebSocket {
 export interface User {
   id: string;
   ws: WebSocket;
-  rooms: String[];
+  adminRooms: String[];
+  memberRooms: String[];
 }

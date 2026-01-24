@@ -4,7 +4,9 @@ dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
 import jwt from "jsonwebtoken";
 import { WebSocketServer } from "ws";
+import { IncomingMessage } from "http";
 
+import { prisma } from "@repo/db";
 import { JWT_SECRET } from "@repo/common/config";
 import { CustomJwtPayload, CustomWebSocket, User } from "@repo/common/types";
 import { WSDataSchema } from "@repo/common/schema";
@@ -12,14 +14,15 @@ import { WSDataSchema } from "@repo/common/schema";
 const PORT = 8080;
 const wss = new WebSocketServer({ port: PORT });
 
-const users: User[] = [];
+let users: User[] = [];
 
-wss.on("connection", (ws: CustomWebSocket, req) => {
+function verifyUser(ws: CustomWebSocket, req: IncomingMessage): void {
   if (!req.url) {
     console.warn("WS:url is missing");
     return;
   }
-  const token = new URLSearchParams(req.url).get("/?token");
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  const token = url.searchParams.get("token");
   if (!token) {
     console.warn("WS:token is missing");
     return;
@@ -37,8 +40,57 @@ wss.on("connection", (ws: CustomWebSocket, req) => {
       error,
     });
   }
+}
 
-  ws.on("message", (msg) => {
+async function addUserIntoUsers(ws: CustomWebSocket) {
+  let user;
+  try {
+    user = await prisma.user.findUnique({
+      where: {
+        id: ws.user.id,
+      },
+      select: {
+        memberRooms: {
+          select: {
+            id: true,
+          },
+        },
+        adminRooms: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      console.warn("User not found in DB.");
+      return;
+    }
+
+    users.push({
+      id: ws.user.id,
+      memberRooms: user.memberRooms.map((r) => r.id),
+      adminRooms: user.adminRooms.map((r) => r.id),
+      ws,
+    });
+  } catch (error) {
+    console.error(error);
+    return;
+  }
+}
+
+wss.on("connection", async (ws: CustomWebSocket, req) => {
+  verifyUser(ws, req);
+  await addUserIntoUsers(ws).then(() => {
+    ws.send(
+      JSON.stringify({
+        type: "status",
+        msg: "Connected to websocket",
+      }),
+    );
+  });
+  ws.on("message", async (msg) => {
     let data;
     try {
       data = JSON.parse(msg.toString());
@@ -59,14 +111,6 @@ wss.on("connection", (ws: CustomWebSocket, req) => {
     }
     data = parsedData.data;
 
-    const user: User = {
-      id: ws.user.id,
-      rooms: [],
-      ws: ws,
-    };
-
-    users.push(user);
-
     if (data.type == "join_room") {
       const user = users.find((u) => u.id == ws.user.id);
       if (!user) {
@@ -74,7 +118,28 @@ wss.on("connection", (ws: CustomWebSocket, req) => {
         ws.close();
         return;
       }
-      user.rooms.push(data.room);
+      try {
+        await prisma.user.update({
+          where: {
+            id: ws.user.id,
+          },
+          data: {
+            memberRooms: {
+              connect: {
+                id: data.room,
+              },
+            },
+          },
+        });
+      } catch (error) {
+        console.error(error);
+        return ws.send(
+          JSON.stringify({
+            msg: "Fail to join room",
+          }),
+        );
+      }
+      user.memberRooms.push(data.room);
       ws.send(
         JSON.stringify({
           msg: "Joined the room -> " + data.room,
@@ -89,22 +154,41 @@ wss.on("connection", (ws: CustomWebSocket, req) => {
         ws.close();
         return;
       }
-      user.rooms = user.rooms.filter((room) => room != data.room);
+
+      try {
+        const user = await prisma.user.update({
+          where: { id: ws.user.id },
+          data: {
+            memberRooms: {
+              disconnect: {
+                id: data.room,
+              },
+            },
+          },
+          include: {
+            memberRooms: true,
+          },
+        });
+        console.log(user);
+      } catch (error) {
+        console.error({ msg: "Fail to leave room", error });
+        return;
+      }
+      user.memberRooms = user.memberRooms.filter((room) => room != data.room);
     }
 
     if (data.type == "chat") {
       const user = users.find((u) => u.id == ws.user.id);
       if (!user) return;
-      if (!user.rooms.includes(data.room)) {
-        ws.send(
+      if (!user.memberRooms.includes(data.room)) {
+        return ws.send(
           JSON.stringify({
             msg: "Join room first",
           }),
         );
-        return;
       }
       users.map((u) => {
-        if (u.rooms.includes(data.room) && u.id != ws.user.id) {
+        if (u.memberRooms.includes(data.room) && u.id != ws.user.id) {
           u.ws.send(
             JSON.stringify({
               type: "chat",
@@ -115,5 +199,11 @@ wss.on("connection", (ws: CustomWebSocket, req) => {
         }
       });
     }
+  });
+
+  ws.on("close", () => {
+    users = users.filter((u) => {
+      u.id != ws.user.id;
+    });
   });
 });

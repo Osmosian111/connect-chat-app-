@@ -7,30 +7,28 @@ datasource db {
   provider = "postgresql"
 }
 
-model Chat {
-  id      Int    @id @default(autoincrement())
-  message String
-  roomId  String
-  userId  String
-  createdAt DateTime @default(now())
-  Room    Room   @relation(fields: [roomId], references: [id])
-  User    User   @relation(fields: [userId], references: [id])
-}
-
-model Room {
-  id      String @id @default(uuid())
-  slug    String
-  adminId String
-  Chat    Chat[]
-  User    User   @relation(fields: [adminId], references: [id])
-}
-
 model User {
   id       String  @id @default(uuid())
   email    String  @unique
   name     String
   password String
   photo    String?
-  Chat     Chat[]
-  Room     Room[]
+
+  // relation to rooms where user is admin
+  adminRooms Room[] @relation("AdminRooms")
+
+  // relation to rooms where user is a member
+  memberRooms Room[] @relation("MemberRooms")
+}
+
+model Room {
+  id      String @id @default(uuid())
+  slug    String
+  adminId String
+
+  // admin relation
+  admin   User   @relation("AdminRooms", fields: [adminId], references: [id])
+
+  // members relation
+  members User[] @relation("MemberRooms")
 }

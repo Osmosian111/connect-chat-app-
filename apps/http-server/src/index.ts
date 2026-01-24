@@ -15,6 +15,42 @@ import { RoomSchema, SignInSchema, SignUpSchema } from "@repo/common/schema";
 const PORT = 3000;
 const app = express();
 app.use(express.json());
+
+app.post("/health", async (req, res) => {
+  let dbStatus = false;
+  let jwtStatus = false;
+  let SaltStatus = false;
+
+  try {
+    const user = await prisma.$queryRaw`SELECT 1`;
+    dbStatus = true;
+  } catch (error) {
+    console.error("DB Failed");
+  }
+
+  try {
+    jwt.sign({ id: "fjsljf" }, JWT_SECRET);
+    jwtStatus = true;
+  } catch (error) {
+    console.error("Jwt failed");
+  }
+
+  try {
+    if (typeof SALT_ROUND == "number") {
+      const salt = await bcrypt.genSalt(SALT_ROUND);
+    }
+    SaltStatus = true;
+  } catch (error) {
+    console.error("Salt failed");
+  }
+
+  res.json({
+    dbStatus: dbStatus ? "Online" : "offline",
+    jwtStatus: jwtStatus ? "OK" : "ERROR",
+    SaltStatus: SaltStatus ? "OK" : "ERROR",
+  });
+});
+
 app.post("/signup", async (req, res) => {
   const parsedData = SignUpSchema.safeParse(req.body);
 
@@ -83,8 +119,9 @@ app.post("/signin", async (req, res) => {
     token,
   });
 });
+app.use(middleware);
 
-app.post("/room", middleware, async (req: CustomRequest, res) => {
+app.post("/room", async (req: CustomRequest, res) => {
   if (!req.user?.id) {
     return;
   }
@@ -116,44 +153,34 @@ app.post("/room", middleware, async (req: CustomRequest, res) => {
     });
     return res.json({
       msg: "Failed to create room",
-      userId
+      userId,
     });
   }
 });
 
-app.post("/health", async (req, res) => {
-  let dbStatus = false;
-  let jwtStatus = false;
-  let SaltStatus = false;
-
+app.post("/chats/:room", async (req: CustomRequest, res) => {
+  const roomId = req.params.room;
+  if (!roomId) return;
+  if (typeof roomId != "string") return;
   try {
-    const user = await prisma.$queryRaw`SELECT 1`;
-    dbStatus = true;
+    const chats = await prisma.chat.findMany({
+      where: {
+        roomId: roomId,
+      },
+      take: 50,
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    res.json({
+      chats
+    })
   } catch (error) {
-    console.error("DB Failed");
+    console.error(error);
+    return res.json({
+      msg: "Failed to get chat.Try again later",
+    });
   }
-
-  try {
-    jwt.sign({ id: "fjsljf" }, JWT_SECRET);
-    jwtStatus = true;
-  } catch (error) {
-    console.error("Jwt failed");
-  }
-
-  try {
-    if (typeof SALT_ROUND == "number") {
-      const salt = await bcrypt.genSalt(SALT_ROUND);
-    }
-    SaltStatus = true;
-  } catch (error) {
-    console.error("Salt failed");
-  }
-
-  res.json({
-    dbStatus: dbStatus ? "Online" : "offline",
-    jwtStatus: jwtStatus ? "OK" : "ERROR",
-    SaltStatus: SaltStatus ? "OK" : "ERROR",
-  });
 });
 
 app.listen(PORT, () => {
