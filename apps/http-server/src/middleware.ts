@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 
 import { JWT_SECRET } from "@repo/common/config";
 import { CustomJwtPayload, CustomRequest } from "@repo/common/types";
@@ -9,14 +9,7 @@ export function middleware(
   res: Response,
   next: NextFunction,
 ) {
-  const auth = req.headers["authorization"];
-  if (!auth) {
-    console.warn("auth is missing");
-    return res.json({
-      msg: "Not Authorized",
-    });
-  }
-  const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
+  const token = req.cookies["chat-app-token"];
   if (!token) {
     console.warn("token is missing");
     return res.json({

@@ -5,6 +5,8 @@ dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 import express from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import cors from "cors";
+import cookieParser from "cookie-parser"
 
 import { prisma } from "@repo/db";
 import { JWT_SECRET, SALT_ROUND } from "@repo/common/config";
@@ -15,6 +17,14 @@ import { RoomSchema, SignInSchema, SignUpSchema } from "@repo/common/schema";
 const PORT = 3000;
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
+
+app.use(
+  cors({
+    origin: "http://localhost:3001",
+    credentials: true,
+  }),
+);
 
 app.post("/health", async (req, res) => {
   let dbStatus = false;
@@ -114,9 +124,15 @@ app.post("/signin", async (req, res) => {
   }
 
   const token = jwt.sign({ id: user.id }, JWT_SECRET);
+  res.cookie("chat-app-token", token, {
+    httpOnly: true,
+    secure: false, // TODO: Use true in production
+    sameSite: "none",
+    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  });
+
   res.json({
-    msg: "signin",
-    token,
+    msg: "Signed in",
   });
 });
 app.use(middleware);
@@ -158,28 +174,26 @@ app.post("/room", async (req: CustomRequest, res) => {
   }
 });
 
-app.post("/chats/:room", async (req: CustomRequest, res) => {
-  const roomId = req.params.room;
-  if (!roomId) return;
-  if (typeof roomId != "string") return;
+app.get("/rooms/:slug", async (req, res) => {
+  const slug = req.params.slug;
+  if (!slug) {
+    return res.json({ msg: "Slug is required" });
+  }
+
   try {
-    const chats = await prisma.chat.findMany({
-      where: {
-        roomId: roomId,
-      },
-      take: 50,
-      orderBy: {
-        createdAt: "desc",
-      },
+    const room = await prisma.room.findFirst({
+      where: { slug },
     });
-    res.json({
-      chats
-    })
+
+    if (!room) {
+      return res.json({ msg: "Room not found" });
+    }
+
+    res.json({ roomId: room.id });
+    return;
   } catch (error) {
     console.error(error);
-    return res.json({
-      msg: "Failed to get chat.Try again later",
-    });
+    return res.json({ msg: "Failed to get chat. Try again later" });
   }
 });
 

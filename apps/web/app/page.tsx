@@ -1,11 +1,28 @@
+"use client"
+import { useState } from "react";
 import styles from "./page.module.css";
-import { prisma } from "@repo/db";
+import { useRouter } from "next/navigation";
 
-export default async function Home() {
-  const user = await prisma.user.findFirst() 
+export default function Home() {
+  const [roomId, setRoomId] = useState("");
+
+  const router = useRouter();
   return (
     <div className={styles.page}>
-      {user?.name ?? "No user added yet"}
+      <input
+        type="text"
+        placeholder="Room name"
+        value={roomId}
+        onChange={(e) => setRoomId(e.target.value)}
+      />
+      <br />
+      <button
+        onClick={() => {
+          router.push(`/room/${roomId}`);
+        }}
+      >
+        Join Room
+      </button>
     </div>
   );
 }
