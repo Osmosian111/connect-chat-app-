@@ -6,7 +6,7 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import cors from "cors";
-import cookieParser from "cookie-parser"
+import cookieParser from "cookie-parser";
 
 import { prisma } from "@repo/db";
 import { JWT_SECRET, SALT_ROUND } from "@repo/common/config";
@@ -30,11 +30,13 @@ app.post("/health", async (req, res) => {
   let dbStatus = false;
   let jwtStatus = false;
   let SaltStatus = false;
+  let state = 200;
 
   try {
     const user = await prisma.$queryRaw`SELECT 1`;
     dbStatus = true;
   } catch (error) {
+    state = 422;
     console.error("DB Failed");
   }
 
@@ -42,6 +44,7 @@ app.post("/health", async (req, res) => {
     jwt.sign({ id: "fjsljf" }, JWT_SECRET);
     jwtStatus = true;
   } catch (error) {
+    state = 422;
     console.error("Jwt failed");
   }
 
@@ -51,10 +54,11 @@ app.post("/health", async (req, res) => {
     }
     SaltStatus = true;
   } catch (error) {
+    state = 422;
     console.error("Salt failed");
   }
 
-  res.json({
+  res.status(state).json({
     dbStatus: dbStatus ? "Online" : "offline",
     jwtStatus: jwtStatus ? "OK" : "ERROR",
     SaltStatus: SaltStatus ? "OK" : "ERROR",
@@ -65,7 +69,7 @@ app.post("/signup", async (req, res) => {
   const parsedData = SignUpSchema.safeParse(req.body);
 
   if (!parsedData.success) {
-    return res.json({
+    return res.status(400).json({
       msg: parsedData.error,
     });
   }
@@ -76,14 +80,14 @@ app.post("/signup", async (req, res) => {
     const salt = await bcrypt.genSalt(saltRounds);
     const hashedPassword = await bcrypt.hash(data.password, salt);
 
-    const user = await prisma.user.create({
+    await prisma.user.create({
       data: {
         name: data.name,
         email: data.email,
         password: hashedPassword,
       },
     });
-    return res.json({
+    return res.status(201).json({
       msg: "Signed Up",
     });
   } catch (error) {
@@ -91,7 +95,7 @@ app.post("/signup", async (req, res) => {
       msg: "Failed to Signup",
       error,
     });
-    return res.json({
+    return res.status(409).json({
       msg: "Signup failed",
     });
   }
@@ -100,7 +104,7 @@ app.post("/signup", async (req, res) => {
 app.post("/signin", async (req, res) => {
   const parsedData = SignInSchema.safeParse(req.body);
   if (!parsedData.success) {
-    return res.json({
+    return res.status(400).json({
       msg: parsedData.error.message,
     });
   }
@@ -112,13 +116,13 @@ app.post("/signin", async (req, res) => {
     },
   });
   if (!user) {
-    return res.json({
+    return res.status(404).json({
       msg: "Signup first",
     });
   }
   const isMatch = await bcrypt.compare(data.password, user.password);
   if (!isMatch) {
-    return res.json({
+    return res.status(401).json({
       msg: "Password or Email is wrong.",
     });
   }
@@ -127,12 +131,12 @@ app.post("/signin", async (req, res) => {
   res.cookie("chat-app-token", token, {
     httpOnly: true,
     secure: false, // TODO: Use true in production
-    sameSite: "none",
+    sameSite: "lax", // TODO: Use none in production
     expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
   });
 
-  res.json({
-    msg: "Signed in",
+  res.status(200).json({
+    msg: "Signed in",token
   });
 });
 app.use(middleware);
@@ -144,7 +148,7 @@ app.post("/room", async (req: CustomRequest, res) => {
   const parsedData = RoomSchema.safeParse(req.body);
   const userId = req.user.id;
   if (!parsedData.success) {
-    return res.json({
+    return res.status(400).json({
       msg: parsedData.error.message,
     });
   }
@@ -158,7 +162,7 @@ app.post("/room", async (req: CustomRequest, res) => {
       },
     });
 
-    return res.json({
+    return res.status(200).json({
       success: true,
       room: { id: room.id, slug: room.slug, adminId: room.adminId },
     });
@@ -167,7 +171,7 @@ app.post("/room", async (req: CustomRequest, res) => {
       error,
       msg: "Failed to create room",
     });
-    return res.json({
+    return res.status(500).json({
       msg: "Failed to create room",
       userId,
     });
@@ -177,7 +181,7 @@ app.post("/room", async (req: CustomRequest, res) => {
 app.get("/rooms/:slug", async (req, res) => {
   const slug = req.params.slug;
   if (!slug) {
-    return res.json({ msg: "Slug is required" });
+    return res.status(400).json({ msg: "Slug is required" });
   }
 
   try {
@@ -186,14 +190,14 @@ app.get("/rooms/:slug", async (req, res) => {
     });
 
     if (!room) {
-      return res.json({ msg: "Room not found" });
+      return res.status(400).json({ msg: "Room not found" });
     }
 
-    res.json({ roomId: room.id });
+    res.status(200).json({ roomId: room.id });
     return;
   } catch (error) {
     console.error(error);
-    return res.json({ msg: "Failed to get chat. Try again later" });
+    return res.status(500).json({ msg: "Failed to get chat. Try again later" });
   }
 });
 

@@ -1,102 +1,83 @@
-import axios from "axios";
-import React, { useState } from "react";
-import { BACKEND_URL } from "../app/config";
+"use client";
+import "./index.css";
+import React, { ChangeEvent, FormEvent, useState } from "react";
+import Button from "@repo/ui/button";
+import Label from "@repo/ui/label";
+import Input from "@repo/ui/input";
+import { signin, signup } from "../script/auth";
 
-async function handleSubmit(
-  obj: { state: boolean; name: string; email: string; password: string },
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-) {
-  try {
-    setLoading(true);
-    if (obj.state) {
-      await axios.post(`${BACKEND_URL}/signup`, {
-        name: obj.name,
-        email: obj.email,
-        password: obj.password,
-      }).then((d)=>console.log(d));
-    } else {
-      await axios
-        .post(
-          `${BACKEND_URL}/signin`,
-          { email: obj.email, password: obj.password },
-          { withCredentials: true },
-        )
-        .then((d) => console.log(d));
-    }
-    alert("Success!");
-  } catch (error: any) {
-    console.error(error);
-    alert(error.response?.data?.message || "Something went wrong");
-  } finally {
-    setLoading(false);
-  }
-}
+type FormType = {
+  className?: string;
+  toggleForm?:boolean
+} & React.FormHTMLAttributes<HTMLFormElement>;
 
-const Form = ({ state }: { state: boolean }) => {
-  const value = state ? "Signup" : "Signin";
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
-  const [loading, setLoading] = useState(false);
+const AuthForm = ({ className,toggleForm = false, ...prop }: FormType) => {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [data, setData] = useState({ name: "", email: "", password: "" });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    handleSubmit({ state, ...formData }, setLoading);
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setData((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
-    <form onSubmit={onSubmit}>
-      {state && (
-        <>
-          <label htmlFor="name">Name:</label>
-          <br />
-          <input
-            onChange={handleChange}
-            value={formData.name}
-            id="name"
-            name="name"
-            type="text"
-            placeholder="Name"
-            disabled={loading}
-          />
-          <br />
-        </>
-      )}
-      <label htmlFor="email">Email:</label>
-      <br />
-      <input
-        onChange={handleChange}
-        value={formData.email}
-        id="email"
-        name="email"
-        type="email"
-        placeholder="Email"
-        disabled={loading}
-      />
-      <br />
-      <label htmlFor="password">Password:</label>
-      <br />
-      <input
-        onChange={handleChange}
-        value={formData.password}
-        id="password"
-        name="password"
-        type="password"
-        placeholder="Password"
-        disabled={loading}
-      />
-      <br />
-      <button type="submit" disabled={loading}>
-        {loading ? "Submitting..." : value}
-      </button>
-    </form>
+    <>
+      <div className="auth-form-container-upper">
+        <div className="auth-form-container-lower">
+          <form
+            className={`form ${className ?? ""}`}
+            onSubmit={(e) => handleSubmit(e, toggleForm, data, setLoading)}
+            {...prop}
+          >
+            {toggleForm && (
+              <>
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  type="name"
+                  id="name"
+                  onChange={(e) => handleChange(e)}
+                  value={data.name}
+                />
+              </>
+            )}
+            <Label htmlFor="email">Email</Label>
+            <Input
+              type="email"
+              id="email"
+              onChange={(e) => handleChange(e)}
+              value={data.email}
+            />
+            <Label htmlFor="password">Password</Label>
+            <Input
+              type="password"
+              id="password"
+              onChange={(e) => handleChange(e)}
+              value={data.password}
+            />
+            <Button type="submit">
+              {!loading ? (toggleForm ? "Sign Up" : "Sign In") : "Submiting..."}
+            </Button>
+          </form>
+        </div>
+      </div>
+    </>
   );
 };
 
-export default Form;
+async function handleSubmit(
+  e: FormEvent<HTMLFormElement>,
+  toggleForm: boolean,
+  data: { name?: string; email: string; password: string },
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>,
+) {
+  e.preventDefault();
+  setLoading(true);
+  if (toggleForm) {
+    await signup(data);
+  } else {
+    await signin(data);
+  }
+  setLoading(false);
+}
+
+export default AuthForm;

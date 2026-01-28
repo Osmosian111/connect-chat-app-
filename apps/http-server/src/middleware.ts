@@ -11,8 +11,8 @@ export function middleware(
 ) {
   const token = req.cookies["chat-app-token"];
   if (!token) {
-    console.warn("token is missing");
-    return res.json({
+    console.warn("token is missing",token);
+    return res.status(401).json({
       msg: "Not Authorized",
     });
   }
@@ -21,14 +21,14 @@ export function middleware(
     const verify = jwt.verify(token, JWT_SECRET) as CustomJwtPayload;
     if (!verify || !verify.id) {
       console.warn("Verified without having id");
-      return res.json({
+      return res.status(401).json({
         msg: "Not Authorized",
       });
     }
     req.user = { id: verify.id };
   } catch (error) {
     console.error({ msg: "token verfy failed.", error });
-    return res.json({
+    return res.status(401).json({
       msg: "Not authorized",
     });
   }

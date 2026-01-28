@@ -1,0 +1,33 @@
+.input {
+  padding: 5px 10px;
+  border: 1px solid rgb(187, 187, 187);
+  outline: none;
+  font-size: 14px;
+}
+.input:focus {
+  border: 1px solid black;
+}
+
+.button {
+  padding: 8px 15px;
+  border: none;
+  background-color: rgb(15, 179, 255);
+  color: white;
+  font-weight: 550;
+  font-size: 14px;
+  border: 1px solid rgb(15, 159, 255);
+}
+
+.button:hover {
+  background-color: rgb(15, 159, 255);
+}
+
+.altButton {
+  background-color: rgb(163, 163, 163);
+  border: 1px solid rgb(163, 143, 163);
+}
+
+.altButton:hover {
+  background-color: rgb(120, 120, 120);
+  border: 1px solid rgb(100, 100, 100);
+}

@@ -16,7 +16,7 @@ export function ChatRoomClient({
             socket.onmessage = (event) => {
                 const parsedData = JSON.parse(event.data);
                 if(parsedData.type === "chat"){
-                    
+                    //
                 }
             }
         }

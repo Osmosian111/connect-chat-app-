@@ -1,2 +1,4 @@
-export const BACKEND_URL = "http://localhost:3000";
-export const WS_URL = "http://localhost:8080";
+export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "";
+export const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL || "";
+export const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "";
+export const JWT_SECRET = process.env.NEXT_PUBLIC_JWT_SECRET || "";
