@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <path fill="#fff" d="
+    M 32 16
+    L 480 256
+    L 32 496
+    L 112 288
+    L 256 256
+    L 112 224
+    Z
+  "/>
+</svg>

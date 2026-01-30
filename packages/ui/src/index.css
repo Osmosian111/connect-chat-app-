@@ -32,11 +32,13 @@
   border: 1px solid rgb(100, 100, 100);
 }
 
-.card-container {
+.card-room-container {
   display: flex;
   flex-direction: row;
   align-items: center;
-  box-shadow: 1px 1px 1px #e0e0e0,-1px -1px 1px #e0e0e0;
+  box-shadow:
+    1px 1px 1px #e0e0e0,
+    -1px -1px 1px #e0e0e0;
   border-radius: 3px;
 }
 
@@ -46,4 +48,55 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.card-message-container {
+  max-width: 70%;
+  position: relative;
+  margin-top: 15px;
+}
+.card-message-container > div {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  flex-direction: row-reverse;
+}
+
+.card-message-image-container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3px;
+  margin-right: 2px;
+}
+
+.card-message-box {
+  position: relative;
+  background-color: white;
+  padding: 8px;
+  border-radius: 8px 8px 8px 0;
+  margin: 5px;
+  margin-left: 10px;
+  box-shadow:
+    1px 1px 1px rgb(238, 238, 238),
+    -1px -1px 1px rgb(238, 238, 238);
+}
+
+.card-message-box::before {
+  content: "";
+  position: absolute;
+  bottom: 0px;
+  left: -9.8px;
+  width: 0;
+  height: 0;
+  border-left: 13px solid transparent;
+  border-bottom: 13px solid white;
+  filter: drop-shadow(-1px 1px 1px rgb(238, 238, 238));
+}
+
+.card-message-name-time{
+  position: absolute;
+  top: -12px;
+  left: 50px;
+  font-size: 12px;
 }

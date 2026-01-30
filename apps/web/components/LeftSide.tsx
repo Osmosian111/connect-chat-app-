@@ -16,7 +16,6 @@ const LeftSide = ({ width }: { width: number }) => {
         <button className="home-left-toggle-chat">&lt;</button>
         <span className="home-left-chat-heading">Chat</span>
       </div>
-      <div className="home-left-horizontal-bar"></div>
       <div className="home-left-profile-view">
         <button>
           <Image width={30} height={30} src="/setting-icon.svg" alt="setting" />
@@ -31,15 +30,15 @@ const LeftSide = ({ width }: { width: number }) => {
         <button className="home-left-menu-add-button">+</button>
       </div>
       <div className="home-left-container-rooms">
-        <Card name="Name" msg_type="typing..."></Card>
-        <Card name="Name" msg_type="typing..."></Card>
-        <Card name="Name" msg_type="typing..."></Card>
-        <Card name="Name" msg_type="typing..."></Card>
-        <Card name="Name" msg_type="typing..."></Card>
-        <Card name="Name" msg_type="typing..."></Card>
-        <Card name="Name" msg_type="typing..."></Card>
-        <Card name="Name" msg_type="typing..."></Card>
-        <Card name="Name" msg_type="typing..."></Card>
+        <Card type="room" name="Name" msg_type="typing..."></Card>
+        <Card type="room" name="Name" msg_type="typing..."></Card>
+        <Card type="room" name="Name" msg_type="typing..."></Card>
+        <Card type="room" name="Name" msg_type="typing..."></Card>
+        <Card type="room" name="Name" msg_type="typing..."></Card>
+        <Card type="room" name="Name" msg_type="typing..."></Card>
+        <Card type="room" name="Name" msg_type="typing..."></Card>
+        <Card type="room" name="Name" msg_type="typing..."></Card>
+        <Card type="room" name="Name" msg_type="typing..."></Card>
       </div>
     </div>
   );

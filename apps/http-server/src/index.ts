@@ -139,6 +139,7 @@ app.post("/signin", async (req, res) => {
     msg: "Signed in",token
   });
 });
+
 app.use(middleware);
 
 app.post("/room", async (req: CustomRequest, res) => {
