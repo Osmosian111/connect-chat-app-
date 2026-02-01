@@ -8,7 +8,7 @@ const Home = () => {
   return (
     <>
       <HomeContextProvider>
-        <div style={{ width: "100vw", height: "100vh", display:"flex"}}>
+        <div style={{ width: "100vw", height: "100vh", display: "flex" }}>
           <LeftSide width={widthLeft}></LeftSide>
           <RightSide width={100 - widthLeft - 0.01}></RightSide>
         </div>

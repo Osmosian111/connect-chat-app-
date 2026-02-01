@@ -40,6 +40,10 @@
     1px 1px 1px #e0e0e0,
     -1px -1px 1px #e0e0e0;
   border-radius: 3px;
+  background-color: white;
+  border: none;
+  width: 100%;
+  cursor: pointer;
 }
 
 .card-image-container {
@@ -62,7 +66,7 @@
   flex-direction: row-reverse;
 }
 
-.card-message-image-container{
+.card-message-image-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -94,7 +98,7 @@
   filter: drop-shadow(-1px 1px 1px rgb(238, 238, 238));
 }
 
-.card-message-name-time{
+.card-message-name-time {
   position: absolute;
   top: -12px;
   left: 50px;

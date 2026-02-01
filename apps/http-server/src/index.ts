@@ -102,45 +102,70 @@ app.post("/signup", async (req, res) => {
 });
 
 app.post("/signin", async (req, res) => {
-  const parsedData = SignInSchema.safeParse(req.body);
-  if (!parsedData.success) {
-    return res.status(400).json({
-      msg: parsedData.error.message,
-    });
-  }
-  const data = parsedData.data;
+  try {
+    const parsedData = SignInSchema.safeParse(req.body);
+    if (!parsedData.success) {
+      return res.status(400).json({ msg: parsedData.error.message });
+    }
 
-  const user = await prisma.user.findUnique({
-    where: {
-      email: data.email.toLowerCase().trim(),
-    },
-  });
-  if (!user) {
-    return res.status(404).json({
-      msg: "Signup first",
+    const data = parsedData.data;
+    const user = await prisma.user.findUnique({
+      where: { email: data.email.toLowerCase().trim() },
     });
-  }
-  const isMatch = await bcrypt.compare(data.password, user.password);
-  if (!isMatch) {
-    return res.status(401).json({
-      msg: "Password or Email is wrong.",
+
+    if (!user) {
+      return res.status(404).json({ msg: "Signup first" });
+    }
+
+    const isMatch = await bcrypt.compare(data.password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ msg: "Password or Email is wrong." });
+    }
+
+    const token = jwt.sign({ id: user.id }, JWT_SECRET);
+    res.cookie("chat-app-token", token, {
+      httpOnly: true,
+      secure: false, // TODO: true in production
+      sameSite: "lax", // TODO: none in production
+      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
+
+    return res.status(200).json({ msg: "Signed in", token });
+  } catch (err) {
+    console.error("Signin error:", err);
+    return res.status(500).json({ msg: "Internal server error" });
   }
-
-  const token = jwt.sign({ id: user.id }, JWT_SECRET);
-  res.cookie("chat-app-token", token, {
-    httpOnly: true,
-    secure: false, // TODO: Use true in production
-    sameSite: "lax", // TODO: Use none in production
-    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-  });
-
-  res.status(200).json({
-    msg: "Signed in",token
-  });
 });
 
 app.use(middleware);
+
+app.post("/user", async (req: CustomRequest, res) => {
+  if (!req.user) return;
+  const id = req.user.id;
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id },
+      include: {
+        adminRooms: true,
+        memberRooms: true,
+      },
+      omit: {
+        password: true,
+        id: true,
+        email: true,
+      },
+    });
+    console.log(user);
+    res.json({
+      user,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(404).json({
+      msg: "Failed to get user's info",
+    });
+  }
+});
 
 app.post("/room", async (req: CustomRequest, res) => {
   if (!req.user?.id) {
@@ -181,18 +206,20 @@ app.post("/room", async (req: CustomRequest, res) => {
 
 app.get("/rooms/:slug", async (req, res) => {
   const slug = req.params.slug;
+  console.log(slug)
   if (!slug) {
     return res.status(400).json({ msg: "Slug is required" });
   }
 
   try {
     const room = await prisma.room.findFirst({
-      where: { slug },
+      where: { slug:slug.toLowerCase() },
     });
 
     if (!room) {
       return res.status(400).json({ msg: "Room not found" });
     }
+    console.log(room)
 
     res.status(200).json({ roomId: room.id });
     return;

@@ -107,16 +107,15 @@
   align-items: center;
 }
 
-.home-left-menu-add-button {
-  width: 35px;
+.home-left-menu-button {
   height: 35px;
   color: #8e8e8e;
-  font-size: 24px;
   font-weight: 550;
   border: none;
+  padding: 0 10px;
   background-color: #d4d4d4;
   border-radius: 5px;
-  margin-right: 3px;
+  margin-right: 5px;
 }
 
 .home-right-heading {
@@ -133,7 +132,7 @@
   width: 100%;
 }
 
-.home-right-chat-container{
+.home-right-chat-container {
   height: calc(100% - 70.1px);
   overflow-y: scroll;
   scrollbar-width: none;
@@ -196,4 +195,73 @@
   box-shadow:
     1px 1px 5px rgb(125, 125, 125),
     -1px -1px 5px rgb(125, 125, 125);
+}
+
+.popup-create-upper-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100vw;
+  height: 100vh;
+  background-color: #ffffff6f;
+  z-index: 1;
+}
+.popup-create-lower-container {
+  position: relative;
+  width: 330px;
+  height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow:
+    1px 1px 1px rgb(224, 224, 224),
+    -1px -1px 1px rgb(224, 224, 224);
+  border: 1px solid rgb(224, 224, 224);
+  border-radius: 5px;
+}
+.popup-create-close-button {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+
+  width: 30px;
+  height: 30px;
+  border: none;
+  background-color: #cdcdcd;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-create-heading{
+  width: 100%;
+  padding: 0 0 0 20px;
+}
+
+.popup-create-input{
+  width: calc(100% - 40px);
+  padding: 10px;
+}
+
+.popup-create-create-button-container{
+  width: 100%;
+  padding: 0 20px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: end;
+}
+
+.popup-create-create-button{
+  padding: 5px 10px;
+  color: black;
+  font-weight: 550;
+  background-color: #d4d4d4;
+  border: none;
 }

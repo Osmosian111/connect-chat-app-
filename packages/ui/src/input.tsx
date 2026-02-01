@@ -1,20 +1,25 @@
 import React from "react";
-type InputType = {
+type FormType = {
+  use: "form";
   className?: string;
   id: string;
   type: string;
 } & React.InputHTMLAttributes<HTMLInputElement>;
 
-const Input = ({ className, id, type, ...prop }: InputType) => {
+const Input = ({ use, className, id, type, ...prop }: FormType) => {
   return (
-    <input
-      className={`input ${className}`}
-      id={id}
-      type={type}
-      name={id}
-      placeholder={"Enter your " + id}
-      {...prop}
-    />
+    <>
+      {use == "form" && (
+        <input
+          className={`input ${className}`}
+          id={id}
+          type={type}
+          name={id}
+          placeholder={"Enter your " + id}
+          {...prop}
+        />
+      )}
+    </>
   );
 };
 

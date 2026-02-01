@@ -5,6 +5,7 @@ import Button from "@repo/ui/button";
 import Label from "@repo/ui/label";
 import Input from "@repo/ui/input";
 import { signin, signup } from "../script/auth";
+import { redirect } from "next/navigation";
 
 type FormType = {
   className?: string;
@@ -32,7 +33,7 @@ const AuthForm = ({ className,toggleForm = false, ...prop }: FormType) => {
             {toggleForm && (
               <>
                 <Label htmlFor="name">Name</Label>
-                <Input
+                <Input use="form"
                   type="name"
                   id="name"
                   onChange={(e) => handleChange(e)}
@@ -41,14 +42,14 @@ const AuthForm = ({ className,toggleForm = false, ...prop }: FormType) => {
               </>
             )}
             <Label htmlFor="email">Email</Label>
-            <Input
+            <Input use="form"
               type="email"
               id="email"
               onChange={(e) => handleChange(e)}
               value={data.email}
             />
             <Label htmlFor="password">Password</Label>
-            <Input
+            <Input use="form"
               type="password"
               id="password"
               onChange={(e) => handleChange(e)}
@@ -75,7 +76,7 @@ async function handleSubmit(
   if (toggleForm) {
     await signup(data);
   } else {
-    await signin(data);
+    await signin(data).then(()=>redirect("/home"));
   }
   setLoading(false);
 }

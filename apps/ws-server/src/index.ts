@@ -65,6 +65,7 @@ async function addUserIntoUsers(ws: CustomWebSocket) {
 
     if (!user) {
       console.warn("User not found in DB.");
+      ws.close();
       return;
     }
 
@@ -76,6 +77,7 @@ async function addUserIntoUsers(ws: CustomWebSocket) {
     });
   } catch (error) {
     console.error(error);
+    ws.close();
     return;
   }
 }
@@ -83,6 +85,7 @@ async function addUserIntoUsers(ws: CustomWebSocket) {
 wss.on("connection", async (ws: CustomWebSocket, req) => {
   verifyUser(ws, req);
   await addUserIntoUsers(ws).then(() => {
+    console.log(ws.user.id);
     ws.send(
       JSON.stringify({
         type: "status",
@@ -169,7 +172,6 @@ wss.on("connection", async (ws: CustomWebSocket, req) => {
             memberRooms: true,
           },
         });
-        console.log(user);
       } catch (error) {
         console.error({ msg: "Fail to leave room", error });
         return;
@@ -179,7 +181,10 @@ wss.on("connection", async (ws: CustomWebSocket, req) => {
 
     if (data.type == "chat") {
       const user = users.find((u) => u.id == ws.user.id);
-      if (!user) return;
+      if (!user) {
+        console.log("user is not in users");
+        return;
+      }
       if (!user.memberRooms.includes(data.room)) {
         return ws.send(
           JSON.stringify({

@@ -1,9 +1,15 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import "./index.css";
 import Image from "next/image";
-import Card from "@repo/ui/card"
+import Card from "@repo/ui/card";
+import { useHome } from "../context/HomeContext";
+import Popup from "./Popup";
 
 const LeftSide = ({ width }: { width: number }) => {
+  const [toggleCreateWindow, setToggleCreateWindow] = useState(false);
+  const [toggleJoinWindow, setToggleJoinWindow] = useState(false);
+  const { userInfo, setRoomId } = useHome();
   return (
     <div
       style={{
@@ -27,19 +33,57 @@ const LeftSide = ({ width }: { width: number }) => {
         <div className="home-left-profile-view-select">select</div>
       </div>
       <div className="home-left-menu">
-        <button className="home-left-menu-add-button">+</button>
+        <button
+          className="home-left-menu-button"
+          onClick={() => setToggleCreateWindow(true)}
+        >
+          Create
+        </button>
+        <button
+          className="home-left-menu-button"
+          onClick={() => setToggleJoinWindow(true)}
+        >
+          Join
+        </button>
       </div>
       <div className="home-left-container-rooms">
-        <Card type="room" name="Name" msg_type="typing..."></Card>
-        <Card type="room" name="Name" msg_type="typing..."></Card>
-        <Card type="room" name="Name" msg_type="typing..."></Card>
-        <Card type="room" name="Name" msg_type="typing..."></Card>
-        <Card type="room" name="Name" msg_type="typing..."></Card>
-        <Card type="room" name="Name" msg_type="typing..."></Card>
-        <Card type="room" name="Name" msg_type="typing..."></Card>
-        <Card type="room" name="Name" msg_type="typing..."></Card>
-        <Card type="room" name="Name" msg_type="typing..."></Card>
+        {userInfo?.memberRooms.map((room) => {
+          return (
+            <Card
+              key={room.id}
+              type="room"
+              name={room.slug}
+              msg_type="typing..."
+              onClick={() => {
+                setRoomId(room.id);
+              }}
+            ></Card>
+          );
+        })}
+        {userInfo?.adminRooms.map((room) => {
+          return (
+            <Card
+              key={room.id}
+              type="room"
+              name={room.slug}
+              msg_type="typing..."
+              onClick={() => {
+                setRoomId(room.id);
+              }}
+            ></Card>
+          );
+        })}
       </div>
+      {toggleCreateWindow && (
+        <Popup type="create"
+          closeButton={{ onClick: () => setToggleCreateWindow(false) }}
+        ></Popup>
+      )}
+      {toggleJoinWindow && (
+        <Popup type="join"
+          closeButton={{ onClick: () => setToggleJoinWindow(false) }}
+        ></Popup>
+      )}
     </div>
   );
 };
