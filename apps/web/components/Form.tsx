@@ -6,11 +6,7 @@ import Label from "@repo/ui/label";
 import Input from "@repo/ui/input";
 import { signin, signup } from "../script/auth";
 import { redirect } from "next/navigation";
-
-type FormType = {
-  className?: string;
-  toggleForm?:boolean
-} & React.FormHTMLAttributes<HTMLFormElement>;
+import { FormType } from "@repo/common/types";
 
 const AuthForm = ({ className,toggleForm = false, ...prop }: FormType) => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -76,7 +72,7 @@ async function handleSubmit(
   if (toggleForm) {
     await signup(data);
   } else {
-    await signin(data).then(()=>redirect("/home"));
+    await signin(data).then(()=>redirect("/chats"));
   }
   setLoading(false);
 }

@@ -26,6 +26,9 @@
 }
 
 .home-left-toggle-chat {
+  position: absolute;
+  top: 16px;
+  right: 16px;
   width: 40px;
   aspect-ratio: 1/1;
   border: none;
@@ -42,14 +45,13 @@
 .home-left-chat-heading {
   font-size: 32px;
   font-weight: 600;
-  margin-left: 10%;
+  margin-left: 10px;
 }
 
 .home-left-container-heading {
   display: flex;
   align-items: center;
   height: 70px;
-  padding: 0 20px;
   box-shadow: 1px 0 2px black;
 }
 
@@ -174,7 +176,7 @@
 }
 
 #message {
-  width: calc(90%);
+  width: calc(90% - 47.2px);
   padding: 10px;
   font-size: 16px;
   border-radius: 10px;

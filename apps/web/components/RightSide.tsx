@@ -5,37 +5,30 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { useSocket } from "../hooks/useSocket";
 import { useHome } from "../context/HomeContext";
+import { ChatType, DataType } from "@repo/common/types";
 
-type DataType = {
-  message: string;
-};
-
-type ChatType = {
-  room: string;
-  message: string;
-  time: Date;
-};
-
-const RightSide = ({ width }: { width: number }) => {
+const RightSide = () => {
   const { socketLoading, socket } = useSocket();
   const [data, setData] = useState<DataType>({ message: "" });
   const [chats, setChats] = useState<ChatType[]>([]);
-  const { roomId } = useHome();
-
+  const { roomId, toggleLeft, userInfo, name } = useHome();
   useEffect(() => {
     if (!socket || socketLoading) return;
 
     const handleMessage = (event: MessageEvent) => {
       try {
         const parsed = JSON.parse(event.data);
-        setChats((prev) => [
-          ...prev,
-          {
-            message: parsed.msg,
-            room: parsed.room,
-            time: new Date(),
-          },
-        ]);
+        if (parsed.type == "chat") {
+          setChats((prev) => [
+            ...prev,
+            {
+              name: parsed.name,
+              message: parsed.msg,
+              room: parsed.room,
+              time: new Date(),
+            },
+          ]);
+        }
       } catch (error) {
         console.error(error);
       }
@@ -48,6 +41,10 @@ const RightSide = ({ width }: { width: number }) => {
     };
   }, [socketLoading, socket]);
 
+  if (!userInfo) {
+    return <></>;
+  }
+
   const handleClick = () => {
     if (!socket || socketLoading || !data.message.trim() || !roomId) return;
 
@@ -55,6 +52,7 @@ const RightSide = ({ width }: { width: number }) => {
       JSON.stringify({
         type: "chat",
         room: roomId,
+        name: userInfo.name,
         message: data.message,
       }),
     );
@@ -62,6 +60,7 @@ const RightSide = ({ width }: { width: number }) => {
     setChats((prev) => [
       ...prev,
       {
+        name: userInfo.name,
         message: data.message,
         room: roomId,
         time: new Date(),
@@ -74,18 +73,18 @@ const RightSide = ({ width }: { width: number }) => {
     <div
       style={{
         height: "100%",
-        width: `${width}%`,
+        width: `${toggleLeft ? 65 : 100}%`,
         border: "1px solid #090909",
       }}
     >
       <div className="home-right-heading">
-        <h1>Name</h1>
+        <h1>{name ? name : "Connect"}</h1>
       </div>
       <div className="home-right-chat-and-input-container">
         <div className="home-right-chat-container">
           {chats.map((chat, idx) => (
             <Card
-              name="Neev"
+              name={chat.name}
               time={chat.time.toLocaleString()}
               type="chat"
               msg={chat.message}
@@ -94,20 +93,31 @@ const RightSide = ({ width }: { width: number }) => {
           ))}
         </div>
         <div className="home-right-message-input-container">
-          <Input use="form"
-            id="message"
-            type="text"
-            onChange={(e) =>
-              setData((d) => ({ ...d, message: e.target.value }))
-            }
-            value={data.message}
-          />
-          <button
-            className="home-right-message-send-button"
-            onClick={handleClick}
-          >
-            <Image height={23} width={23} alt="send" src="/send-message.svg" />
-          </button>
+          {roomId && (
+            <>
+              <Input
+                use="form"
+                id="message"
+                type="text"
+                onChange={(e) =>
+                  setData((d) => ({ ...d, message: e.target.value }))
+                }
+                value={data.message}
+                autoComplete="off"
+              />
+              <button
+                className="home-right-message-send-button"
+                onClick={handleClick}
+              >
+                <Image
+                  height={23}
+                  width={23}
+                  alt="send"
+                  src="/send-message.svg"
+                />
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

@@ -19,13 +19,13 @@ export function middleware(
 
   try {
     const verify = jwt.verify(token, JWT_SECRET) as CustomJwtPayload;
-    if (!verify || !verify.id) {
+    if (!verify || !verify.id || !verify.name) {
       console.warn("Verified without having id");
       return res.status(401).json({
         msg: "Not Authorized",
       });
     }
-    req.user = { id: verify.id };
+    req.user = { id: verify.id,name:verify.name };
   } catch (error) {
     console.error({ msg: "token verfy failed.", error });
     return res.status(401).json({

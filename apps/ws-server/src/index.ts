@@ -29,11 +29,11 @@ function verifyUser(ws: CustomWebSocket, req: IncomingMessage): void {
   }
   try {
     const verify = jwt.verify(token, JWT_SECRET) as CustomJwtPayload;
-    if (!verify || !verify.id) {
+    if (!verify || !verify.id || !verify.name) {
       console.warn("Token werified without id");
       return;
     }
-    ws.user = { id: verify.id };
+    ws.user = { id: verify.id, name: verify.name };
   } catch (error) {
     console.warn({
       msg: "Verification failed",
@@ -159,7 +159,7 @@ wss.on("connection", async (ws: CustomWebSocket, req) => {
       }
 
       try {
-        const user = await prisma.user.update({
+        await prisma.user.update({
           where: { id: ws.user.id },
           data: {
             memberRooms: {
@@ -167,9 +167,6 @@ wss.on("connection", async (ws: CustomWebSocket, req) => {
                 id: data.room,
               },
             },
-          },
-          include: {
-            memberRooms: true,
           },
         });
       } catch (error) {
@@ -185,7 +182,7 @@ wss.on("connection", async (ws: CustomWebSocket, req) => {
         console.log("user is not in users");
         return;
       }
-      if (!user.memberRooms.includes(data.room)) {
+      if (!user.memberRooms.includes(data.room) && !user.adminRooms.includes(data.room)) {
         return ws.send(
           JSON.stringify({
             msg: "Join room first",
@@ -193,10 +190,15 @@ wss.on("connection", async (ws: CustomWebSocket, req) => {
         );
       }
       users.map((u) => {
-        if (u.memberRooms.includes(data.room) && u.id != ws.user.id) {
+        if (
+          (u.memberRooms.includes(data.room) ||
+            u.adminRooms.includes(data.room)) &&
+          u.id != ws.user.id
+        ) {
           u.ws.send(
             JSON.stringify({
               type: "chat",
+              name: ws.user.name,
               room: data.room,
               msg: data.message,
             }),
@@ -208,7 +210,7 @@ wss.on("connection", async (ws: CustomWebSocket, req) => {
 
   ws.on("close", () => {
     users = users.filter((u) => {
-      u.id != ws.user.id;
+      return u.id != ws.user.id;
     });
   });
 });

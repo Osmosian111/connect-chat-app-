@@ -1,21 +1,17 @@
 "use client";
-import React, { HTMLAttributes, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./index.css";
 import Image from "next/image";
 import Button from "@repo/ui/button";
 import { useSocket } from "../hooks/useSocket";
 import axios from "axios";
 import { BACKEND_URL } from "../app/config";
-
-type PopupProps = {
-  type: "create" | "join";
-  input?: HTMLAttributes<HTMLInputElement> & { className?: string };
-  createButton?: HTMLAttributes<HTMLButtonElement> & { className?: string };
-  closeButton?: HTMLAttributes<HTMLButtonElement> & { className?: string };
-};
+import { PopupProps } from "@repo/common/types";
+import { useHome } from "../context/HomeContext";
 
 const Popup = ({ type, input, createButton, closeButton }: PopupProps) => {
   const { socket, socketLoading } = useSocket();
+  const {userInfo} = useHome();
   const [roomName, setRoomName] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
@@ -54,6 +50,7 @@ const Popup = ({ type, input, createButton, closeButton }: PopupProps) => {
       socket.send(
         JSON.stringify({
           type: "join_room",
+          name: userInfo?.name,
           room: room.data.roomId,
         }),
       );

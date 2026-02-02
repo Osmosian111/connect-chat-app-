@@ -6,20 +6,22 @@ import Card from "@repo/ui/card";
 import { useHome } from "../context/HomeContext";
 import Popup from "./Popup";
 
-const LeftSide = ({ width }: { width: number }) => {
+const LeftSide = () => {
   const [toggleCreateWindow, setToggleCreateWindow] = useState(false);
   const [toggleJoinWindow, setToggleJoinWindow] = useState(false);
-  const { userInfo, setRoomId } = useHome();
+  const { userInfo, setRoomId, setName } = useHome();
+
+  if (!userInfo) return <></>;
+
   return (
     <div
       style={{
         height: "100%",
-        width: `${width}%`,
+        width: `${35}%`,
         border: "1px solid #090909",
       }}
     >
       <div className="home-left-container-heading">
-        <button className="home-left-toggle-chat">&lt;</button>
         <span className="home-left-chat-heading">Chat</span>
       </div>
       <div className="home-left-profile-view">
@@ -29,7 +31,7 @@ const LeftSide = ({ width }: { width: number }) => {
         <div className="home-left-profile-view-image">
           <Image width={100} height={100} src={"/person.svg"} alt="img" />
         </div>
-        <p className="home-left-profile-view-name">Name</p>
+        <p className="home-left-profile-view-name">{userInfo.name}</p>
         <div className="home-left-profile-view-select">select</div>
       </div>
       <div className="home-left-menu">
@@ -56,6 +58,7 @@ const LeftSide = ({ width }: { width: number }) => {
               msg_type="typing..."
               onClick={() => {
                 setRoomId(room.id);
+                setName(room.slug);
               }}
             ></Card>
           );
@@ -69,18 +72,21 @@ const LeftSide = ({ width }: { width: number }) => {
               msg_type="typing..."
               onClick={() => {
                 setRoomId(room.id);
+                setName(userInfo.name);
               }}
             ></Card>
           );
         })}
       </div>
       {toggleCreateWindow && (
-        <Popup type="create"
+        <Popup
+          type="create"
           closeButton={{ onClick: () => setToggleCreateWindow(false) }}
         ></Popup>
       )}
       {toggleJoinWindow && (
-        <Popup type="join"
+        <Popup
+          type="join"
           closeButton={{ onClick: () => setToggleJoinWindow(false) }}
         ></Popup>
       )}

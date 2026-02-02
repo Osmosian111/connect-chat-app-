@@ -20,6 +20,7 @@ export const RoomSchema = z.object({
 
 export const WSDataSchema = z.object({
   type: z.enum(["leave_room", "chat", "join_room"]),
+  name: z.string(),
   room: z.string().min(3).max(50).trim(),
   message: z.string().min(1).max(1000).trim().optional(),
 });

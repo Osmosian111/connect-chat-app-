@@ -1,20 +1,15 @@
 import React from "react";
 import HomeContextProvider from "../../../context/HomeContextProvider";
-import LeftSide from "../../../components/LeftSide";
-import RightSide from "../../../components/RightSide";
+import Home from "../../../components/Home";
 
-const Home = () => {
-  const widthLeft = 35;
+const HomePage = () => {
   return (
     <>
       <HomeContextProvider>
-        <div style={{ width: "100vw", height: "100vh", display: "flex" }}>
-          <LeftSide width={widthLeft}></LeftSide>
-          <RightSide width={100 - widthLeft - 0.01}></RightSide>
-        </div>
+        <Home />
       </HomeContextProvider>
     </>
   );
 };
 
-export default Home;
+export default HomePage;

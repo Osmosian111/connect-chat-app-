@@ -1,29 +1,6 @@
 "use client";
-import { createContext, Dispatch, SetStateAction, useContext } from "react";
-
-type RoomType = {
-  id: string;
-  slug: string;
-  adminId: string;
-};
-
-type UserInfoType =
-  | {
-      name: string;
-      photo: string | null;
-      adminRooms: RoomType[];
-      memberRooms: RoomType[];
-    }
-  | undefined;
-
-type HomeContextType =
-  | {
-      roomId: string;
-      setRoomId: Dispatch<SetStateAction<string>>;
-      userInfo: UserInfoType;
-      setUserInfo: Dispatch<SetStateAction<UserInfoType>>;
-    }
-  | undefined;
+import { HomeContextType } from "@repo/common/types";
+import { createContext, useContext } from "react";
 
 export const HomeContext = createContext<HomeContextType>(undefined);
 export const useHome = () => {

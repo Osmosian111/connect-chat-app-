@@ -122,7 +122,7 @@ app.post("/signin", async (req, res) => {
       return res.status(401).json({ msg: "Password or Email is wrong." });
     }
 
-    const token = jwt.sign({ id: user.id }, JWT_SECRET);
+    const token = jwt.sign({ id: user.id, name: user.name }, JWT_SECRET);
     res.cookie("chat-app-token", token, {
       httpOnly: true,
       secure: false, // TODO: true in production
@@ -206,20 +206,20 @@ app.post("/room", async (req: CustomRequest, res) => {
 
 app.get("/rooms/:slug", async (req, res) => {
   const slug = req.params.slug;
-  console.log(slug)
+  console.log(slug);
   if (!slug) {
     return res.status(400).json({ msg: "Slug is required" });
   }
 
   try {
     const room = await prisma.room.findFirst({
-      where: { slug:slug.toLowerCase() },
+      where: { slug: slug.toLowerCase() },
     });
 
     if (!room) {
       return res.status(400).json({ msg: "Room not found" });
     }
-    console.log(room)
+    console.log(room);
 
     res.status(200).json({ roomId: room.id });
     return;

@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@repo/ui": "*",
+    "@repo/common": "*",
     "@types/jsonwebtoken": "^9.0.10",
     "axios": "^1.13.2",
     "cookie": "^0.7.2",
