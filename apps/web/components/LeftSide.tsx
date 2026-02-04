@@ -9,7 +9,7 @@ import Popup from "./Popup";
 const LeftSide = () => {
   const [toggleCreateWindow, setToggleCreateWindow] = useState(false);
   const [toggleJoinWindow, setToggleJoinWindow] = useState(false);
-  const { userInfo, setRoomId, setName } = useHome();
+  const { userInfo, setRoomId, setName, roomId } = useHome();
 
   if (!userInfo) return <></>;
 
@@ -60,6 +60,7 @@ const LeftSide = () => {
                 setRoomId(room.id);
                 setName(room.slug);
               }}
+              style={{ backgroundColor: room.id == roomId ? "#d3d3d3" : "white" }}
             ></Card>
           );
         })}
@@ -74,6 +75,7 @@ const LeftSide = () => {
                 setRoomId(room.id);
                 setName(userInfo.name);
               }}
+              style={{ backgroundColor: room.id == roomId ? "#d3d3d3" : "white" }}
             ></Card>
           );
         })}

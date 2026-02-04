@@ -10,7 +10,7 @@ import { ChatType, DataType } from "@repo/common/types";
 const RightSide = () => {
   const { socketLoading, socket } = useSocket();
   const [data, setData] = useState<DataType>({ message: "" });
-  const [chats, setChats] = useState<ChatType[]>([]);
+  const [chats, setChats] = useState<ChatType>({});
   const { roomId, toggleLeft, userInfo, name } = useHome();
   useEffect(() => {
     if (!socket || socketLoading) return;
@@ -19,15 +19,21 @@ const RightSide = () => {
       try {
         const parsed = JSON.parse(event.data);
         if (parsed.type == "chat") {
-          setChats((prev) => [
-            ...prev,
-            {
-              name: parsed.name,
-              message: parsed.msg,
-              room: parsed.room,
-              time: new Date(),
-            },
-          ]);
+          setChats((prev) => {
+            if (!prev) return {};
+            return {
+              ...prev,
+              [`${parsed.room}`]: [
+                ...(prev[`${parsed.room}`] || []),
+                {
+                  name: parsed.name,
+                  room: parsed.room,
+                  message: parsed.msg,
+                  time: new Date(),
+                },
+              ],
+            };
+          });
         }
       } catch (error) {
         console.error(error);
@@ -57,15 +63,21 @@ const RightSide = () => {
       }),
     );
 
-    setChats((prev) => [
-      ...prev,
-      {
-        name: userInfo.name,
-        message: data.message,
-        room: roomId,
-        time: new Date(),
-      },
-    ]);
+    setChats((prev) => {
+      if (!prev) return {};
+      return {
+        ...prev,
+        [roomId]: [
+          ...(prev[roomId] || []),
+          {
+            name: userInfo.name,
+            room: roomId,
+            message: data.message,
+            time: new Date(),
+          },
+        ],
+      };
+    });
     setData({ message: "" });
   };
 
@@ -78,19 +90,21 @@ const RightSide = () => {
       }}
     >
       <div className="home-right-heading">
-        <h1>{name ? name : "Connect"}</h1>
+        <h1>{name ? name.at(0)?.toUpperCase() + name.slice(1) : "Connect"}</h1>
       </div>
       <div className="home-right-chat-and-input-container">
         <div className="home-right-chat-container">
-          {chats.map((chat, idx) => (
-            <Card
-              name={chat.name}
-              time={chat.time.toLocaleString()}
-              type="chat"
-              msg={chat.message}
-              key={idx}
-            />
-          ))}
+          {chats &&
+            (chats[`${roomId}`] || []).map((chat, idx) => (
+              <Card
+                owner={chat.name == userInfo.name}
+                name={chat.name}
+                time={chat.time.toLocaleString()}
+                type="chat"
+                msg={chat.message}
+                key={idx}
+              />
+            ))}
         </div>
         <div className="home-right-message-input-container">
           {roomId && (

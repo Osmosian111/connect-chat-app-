@@ -40,10 +40,12 @@ export type DataType = {
 };
 
 export type ChatType = {
-  name: string;
-  room: string;
-  message: string;
-  time: Date;
+  [key:string]: {
+    name: string;
+    room: string;
+    message: string;
+    time: Date;
+  }[];
 };
 
 type RoomType = {
@@ -54,6 +56,7 @@ type RoomType = {
 
 export type UserInfoType =
   | {
+      id: string;
       name: string;
       photo: string | null;
       adminRooms: RoomType[];

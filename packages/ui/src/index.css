@@ -40,10 +40,10 @@
     1px 1px 1px #e0e0e0,
     -1px -1px 1px #e0e0e0;
   border-radius: 3px;
-  background-color: white;
   border: none;
-  width: 100%;
+  width: calc(100% - 10px);
   cursor: pointer;
+  margin: 5px;
 }
 
 .card-image-container {
@@ -55,15 +55,18 @@
 }
 
 .card-message-container {
-  max-width: 70%;
   position: relative;
   margin-top: 15px;
 }
-.card-message-container > div {
+.card-message-container > div,.card-message-container-owner > div {
   display: flex;
   align-items: center;
   justify-content: start;
   flex-direction: row-reverse;
+}
+.card-message-container-owner > div {
+  justify-content: end;
+  flex-direction: row;
 }
 
 .card-message-image-container {
@@ -74,33 +77,81 @@
   margin-right: 2px;
 }
 
-.card-message-box {
+.card-message-container,
+.card-message-container-owner {
   position: relative;
-  background-color: white;
-  padding: 8px;
-  border-radius: 8px 8px 8px 0;
-  margin: 5px;
-  margin-left: 10px;
-  box-shadow:
-    1px 1px 1px rgb(238, 238, 238),
-    -1px -1px 1px rgb(238, 238, 238);
+  margin-top: 1rem;
 }
 
+.card-message-container > div,
+.card-message-container-owner > div {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.card-message-container > div {
+  flex-direction: row-reverse;
+}
+
+.card-message-container-owner > div {
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.card-message-image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.25rem;
+  margin-right: 0.25rem;
+}
+
+.card-message-box,
+.card-message-box-owner {
+  position: relative;
+  padding: 0.6rem 0.9rem;
+  border-radius: 0.75rem;
+  margin: 0.25rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  word-wrap: break-word;
+  line-height: 1.4;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
+}
+
+.card-message-box {
+  background-color: #fff;
+  border-radius: 0.75rem 0.75rem 0.75rem 0;
+}
 .card-message-box::before {
   content: "";
   position: absolute;
-  bottom: 0px;
-  left: -9.8px;
-  width: 0;
-  height: 0;
-  border-left: 13px solid transparent;
-  border-bottom: 13px solid white;
-  filter: drop-shadow(-1px 1px 1px rgb(238, 238, 238));
+  bottom: 0;
+  left: -10px;
+  border-left: 12px solid transparent;
+  border-bottom: 12px solid #fff;
+  filter: drop-shadow(-1px 1px 1px rgba(0,0,0,0.1));
+}
+
+.card-message-box-owner {
+  background-color: #e6f7ff;
+  border-radius: 0.75rem 0.75rem 0 0.75rem;
+}
+.card-message-box-owner::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: -10px;
+  border-right: 12px solid transparent;
+  border-bottom: 12px solid #e6f7ff;
+  filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.1));
 }
 
 .card-message-name-time {
   position: absolute;
-  top: -12px;
-  left: 50px;
-  font-size: 12px;
+  top: -1rem;
+  left: 3rem;
+  font-size: 0.75rem;
+  color: #666;
 }
