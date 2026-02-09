@@ -11,11 +11,13 @@
     "check-types": "next typegen && tsc --noEmit"
   },
   "dependencies": {
-    "@repo/ui": "*",
     "@repo/common": "*",
+    "@repo/ui": "*",
     "@types/jsonwebtoken": "^9.0.10",
     "axios": "^1.13.2",
     "cookie": "^0.7.2",
+    "dexie": "^4.3.0",
+    "dexie-react-hooks": "^4.2.0",
     "dotenv": "^16.0.3",
     "jsonwebtoken": "^9.0.3",
     "next": "16.1.0",

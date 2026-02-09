@@ -70,7 +70,7 @@ app.post("/signup", async (req, res) => {
 
   if (!parsedData.success) {
     return res.status(400).json({
-      msg: parsedData.error,
+      message: parsedData.error
     });
   }
   const data = parsedData.data;
@@ -88,15 +88,15 @@ app.post("/signup", async (req, res) => {
       },
     });
     return res.status(201).json({
-      msg: "Signed Up",
+      message: "Signed Up",
     });
   } catch (error) {
     console.warn({
-      msg: "Failed to Signup",
+      message: "Failed to Signup",
       error,
     });
     return res.status(409).json({
-      msg: "Signup failed",
+      message: "Signup failed",
     });
   }
 });
@@ -105,7 +105,7 @@ app.post("/signin", async (req, res) => {
   try {
     const parsedData = SignInSchema.safeParse(req.body);
     if (!parsedData.success) {
-      return res.status(400).json({ msg: parsedData.error.message });
+      return res.status(400).json({ message: parsedData.error.message });
     }
 
     const data = parsedData.data;
@@ -114,12 +114,12 @@ app.post("/signin", async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ msg: "Signup first" });
+      return res.status(404).json({ message: "Signup first" });
     }
 
     const isMatch = await bcrypt.compare(data.password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ msg: "Password or Email is wrong." });
+      return res.status(401).json({ message: "Password or Email is wrong." });
     }
 
     const token = jwt.sign({ id: user.id, name: user.name }, JWT_SECRET);
@@ -130,10 +130,10 @@ app.post("/signin", async (req, res) => {
       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
 
-    return res.status(200).json({ msg: "Signed in", token });
+    return res.status(200).json({ message: "Signed in", token });
   } catch (err) {
     console.error("Signin error:", err);
-    return res.status(500).json({ msg: "Internal server error" });
+    return res.status(500).json({ message: "Internal server error" });
   }
 });
 
@@ -162,7 +162,7 @@ app.post("/user", async (req: CustomRequest, res) => {
   } catch (error) {
     console.error(error);
     res.status(404).json({
-      msg: "Failed to get user's info",
+      message: "Failed to get user's info",
     });
   }
 });
@@ -175,7 +175,7 @@ app.post("/room", async (req: CustomRequest, res) => {
   const userId = req.user.id;
   if (!parsedData.success) {
     return res.status(400).json({
-      msg: parsedData.error.message,
+      message: parsedData.error.message,
     });
   }
   const data = parsedData.data;
@@ -195,10 +195,10 @@ app.post("/room", async (req: CustomRequest, res) => {
   } catch (error) {
     console.warn({
       error,
-      msg: "Failed to create room",
+      message: "Failed to create room",
     });
     return res.status(500).json({
-      msg: "Failed to create room",
+      message: "Failed to create room",
       userId,
     });
   }
@@ -208,7 +208,7 @@ app.get("/rooms/:slug", async (req, res) => {
   const slug = req.params.slug;
   console.log(slug);
   if (!slug) {
-    return res.status(400).json({ msg: "Slug is required" });
+    return res.status(400).json({ message: "Slug is required" });
   }
 
   try {
@@ -217,7 +217,7 @@ app.get("/rooms/:slug", async (req, res) => {
     });
 
     if (!room) {
-      return res.status(400).json({ msg: "Room not found" });
+      return res.status(400).json({ message: "Room not found" });
     }
     console.log(room);
 
@@ -225,7 +225,7 @@ app.get("/rooms/:slug", async (req, res) => {
     return;
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ msg: "Failed to get chat. Try again later" });
+    return res.status(500).json({ message: "Failed to get chat. Try again later" });
   }
 });
 

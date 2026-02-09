@@ -118,7 +118,6 @@ wss.on("connection", async (ws: CustomWebSocket, req) => {
       const user = users.find((u) => u.id == ws.user.id);
       if (!user) {
         console.warn("User not found");
-        ws.close();
         return;
       }
       try {
@@ -182,7 +181,10 @@ wss.on("connection", async (ws: CustomWebSocket, req) => {
         console.log("user is not in users");
         return;
       }
-      if (!user.memberRooms.includes(data.room) && !user.adminRooms.includes(data.room)) {
+      if (
+        !user.memberRooms.includes(data.room) &&
+        !user.adminRooms.includes(data.room)
+      ) {
         return ws.send(
           JSON.stringify({
             msg: "Join room first",
