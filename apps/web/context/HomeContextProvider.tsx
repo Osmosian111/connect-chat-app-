@@ -14,11 +14,11 @@ const HomeContextProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     async function getUserInfo() {
       try {
-        const user = await axios.post(
+        const user = await axios.get(
           `${BACKEND_URL}/user`,
-          {},
           { withCredentials: true },
         );
+        console.log(user.data.user)
         setUserInfo(user.data.user);
       } catch (error) {
         console.error(error);

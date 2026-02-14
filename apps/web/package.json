@@ -14,15 +14,16 @@
     "@repo/common": "*",
     "@repo/ui": "*",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/pouchdb-adapter-idb": "^6.1.7",
     "axios": "^1.13.2",
     "cookie": "^0.7.2",
-    "dexie": "^4.3.0",
-    "dexie-react-hooks": "^4.2.0",
     "dotenv": "^16.0.3",
     "jsonwebtoken": "^9.0.3",
     "next": "16.1.0",
+    "pouchdb-adapter-idb": "^9.0.0",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "rxdb": "^16.21.1"
   },
   "devDependencies": {
     "@repo/common": "*",

@@ -70,7 +70,7 @@ app.post("/signup", async (req, res) => {
 
   if (!parsedData.success) {
     return res.status(400).json({
-      message: parsedData.error
+      message: parsedData.error,
     });
   }
   const data = parsedData.data;
@@ -139,15 +139,43 @@ app.post("/signin", async (req, res) => {
 
 app.use(middleware);
 
-app.post("/user", async (req: CustomRequest, res) => {
+app.get("/user", async (req: CustomRequest, res) => {
   if (!req.user) return;
   const id = req.user.id;
   try {
     const user = await prisma.user.findUnique({
       where: { id },
       include: {
-        adminRooms: true,
-        memberRooms: true,
+        adminRooms: {
+          include: {
+            chat: {
+              include: {
+                user: {
+                  omit: {
+                    id: true,
+                    email: true,
+                    password: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        memberRooms: {
+          include: {
+            chat: {
+              include: {
+                user: {
+                  omit: {
+                    id: true,
+                    email: true,
+                    password: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
       omit: {
         password: true,
@@ -225,9 +253,13 @@ app.get("/rooms/:slug", async (req, res) => {
     return;
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Failed to get chat. Try again later" });
+    return res
+      .status(500)
+      .json({ message: "Failed to get chat. Try again later" });
   }
 });
+
+app.get("/rooms");
 
 app.listen(PORT, () => {
   console.log(`Server is listening at port : ${PORT}`);

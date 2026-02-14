@@ -176,6 +176,7 @@ wss.on("connection", async (ws: CustomWebSocket, req) => {
     }
 
     if (data.type == "chat") {
+      if (!data.message) return;
       const user = users.find((u) => u.id == ws.user.id);
       if (!user) {
         console.log("user is not in users");
@@ -207,6 +208,19 @@ wss.on("connection", async (ws: CustomWebSocket, req) => {
           );
         }
       });
+      try {
+        await prisma.chat
+          .create({
+            data: {
+              message: data.message,
+              roomId: data.room,
+              userId: ws.user.id,
+            },
+          })
+          .then(() => console.log("Message is pushed"));
+      } catch (error) {
+        console.warn("Failed to push to database");
+      }
     }
   });
 

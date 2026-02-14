@@ -2,6 +2,7 @@ import { type Request } from "express";
 import { type JwtPayload } from "jsonwebtoken";
 import { type WebSocket } from "ws";
 import { Dispatch, HTMLAttributes, SetStateAction } from "react";
+import { Prisma } from "@repo/db";
 
 export interface CustomRequest extends Request {
   user?: { id: string; name: string };
@@ -40,11 +41,11 @@ export type DataType = {
 };
 
 export type ChatType = {
-  [key:string]: {
+  [key: string]: {
     name: string;
     room: string;
     message: string;
-    time: Date;
+    time: string;
   }[];
 };
 
@@ -55,13 +56,40 @@ type RoomType = {
 };
 
 export type UserInfoType =
-  | {
-      id: string;
-      name: string;
-      photo: string | null;
-      adminRooms: RoomType[];
-      memberRooms: RoomType[];
-    }
+  | Prisma.UserGetPayload<{
+      include: {
+        adminRooms: {
+          include: {
+            chat: {
+              include: {
+                user: {
+                  omit: {
+                    id: true;
+                    email: true;
+                    password: true;
+                  };
+                };
+              };
+            };
+          };
+        };
+        memberRooms: {
+          include: {
+            chat: {
+              include: {
+                user: {
+                  omit: {
+                    id: true;
+                    email: true;
+                    password: true;
+                  };
+                };
+              };
+            };
+          };
+        };
+      };
+    }>
   | undefined;
 
 export type HomeContextType =

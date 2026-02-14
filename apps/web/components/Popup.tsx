@@ -11,7 +11,7 @@ import { useHome } from "../context/HomeContext";
 
 const Popup = ({ type, input, createButton, closeButton }: PopupProps) => {
   const { socket, socketLoading } = useSocket();
-  const {userInfo} = useHome();
+  const { userInfo } = useHome();
   const [roomName, setRoomName] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
@@ -29,12 +29,16 @@ const Popup = ({ type, input, createButton, closeButton }: PopupProps) => {
   const handleCreate = async () => {
     setLoading(true);
     try {
-      const data = await axios.post(
-        `${BACKEND_URL}/room`,
-        { name: roomName },
-        { withCredentials: true },
-      );
-      console.log(data);
+      await axios
+        .post(
+          `${BACKEND_URL}/room`,
+          { name: roomName },
+          { withCredentials: true },
+        )
+        .then(() => {
+          console.log("Navigating....");
+          window.location.reload();
+        });
     } finally {
       setLoading(false);
     }
@@ -54,6 +58,7 @@ const Popup = ({ type, input, createButton, closeButton }: PopupProps) => {
           room: room.data.roomId,
         }),
       );
+      window.location.reload();
     } finally {
       setLoading(false);
     }

@@ -12,6 +12,7 @@ const RightSide = () => {
   const [data, setData] = useState<DataType>({ message: "" });
   const [chats, setChats] = useState<ChatType>({});
   const { roomId, toggleLeft, userInfo, name } = useHome();
+
   useEffect(() => {
     if (!socket || socketLoading) return;
 
@@ -29,7 +30,10 @@ const RightSide = () => {
                   name: parsed.name,
                   room: parsed.room,
                   message: parsed.msg,
-                  time: new Date(),
+                  time:
+                    new Date().toLocaleDateString() +
+                    " " +
+                    new Date().toLocaleTimeString(),
                 },
               ],
             };
@@ -46,6 +50,76 @@ const RightSide = () => {
       socket.removeEventListener("message", handleMessage);
     };
   }, [socketLoading, socket]);
+
+  useEffect(() => {
+    if (!userInfo) return;
+
+    userInfo.adminRooms.map((room) => {
+      room.chat.map((chat) => {
+        setChats((prev) => {
+          const dateObj = new Date(chat.createdAt);
+          const formatted =
+            dateObj.getFullYear() +
+            "-" +
+            String(dateObj.getMonth() + 1).padStart(2, "0") +
+            "-" +
+            String(dateObj.getDate()).padStart(2, "0") +
+            " " +
+            String(dateObj.getHours()).padStart(2, "0") +
+            ":" +
+            String(dateObj.getMinutes()).padStart(2, "0") +
+            ":" +
+            String(dateObj.getSeconds()).padStart(2, "0");
+
+          return {
+            ...prev,
+            [room.id]: [
+              ...(prev[room.id] || []),
+              {
+                name: chat.user.name,
+                message: chat.message,
+                room: chat.roomId,
+                time: formatted,
+              },
+            ],
+          };
+        });
+      });
+    });
+
+    userInfo.memberRooms.map((room) => {
+      room.chat.map((chat) => {
+        setChats((prev) => {
+          const dateObj = new Date(chat.createdAt);
+          const formatted =
+            dateObj.getFullYear() +
+            "-" +
+            String(dateObj.getMonth() + 1).padStart(2, "0") +
+            "-" +
+            String(dateObj.getDate()).padStart(2, "0") +
+            " " +
+            String(dateObj.getHours()).padStart(2, "0") +
+            ":" +
+            String(dateObj.getMinutes()).padStart(2, "0") +
+            ":" +
+            String(dateObj.getSeconds()).padStart(2, "0");
+
+          return {
+            ...prev,
+            [room.id]: [
+              ...(prev[room.id] || []),
+              {
+                name: chat.user.name,
+                message: chat.message,
+                room: chat.roomId,
+                time: formatted,
+              },
+            ],
+          };
+        });
+      });
+    });
+  }, [userInfo]);
 
   if (!userInfo) {
     return <></>;
@@ -73,7 +147,10 @@ const RightSide = () => {
             name: userInfo.name,
             room: roomId,
             message: data.message,
-            time: new Date(),
+            time:
+              new Date().toLocaleDateString() +
+              " " +
+              new Date().toLocaleTimeString(),
           },
         ],
       };
@@ -99,7 +176,7 @@ const RightSide = () => {
               <Card
                 owner={chat.name == userInfo.name}
                 name={chat.name}
-                time={chat.time.toLocaleString()}
+                time={chat.time.toString()}
                 type="chat"
                 msg={chat.message}
                 key={idx}
